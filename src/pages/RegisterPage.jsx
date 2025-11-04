@@ -223,7 +223,7 @@ export default function RegisterPage() {
           socialName: formData.socialName,
           email: formData.email,
           password: formData.password,
-          accountType: accountType,
+          userType: accountType,
           phone: formData.phone,
           cpf: formData.cpf,
           cep: formData.cep,
