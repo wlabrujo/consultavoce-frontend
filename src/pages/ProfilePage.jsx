@@ -124,7 +124,7 @@ export default function ProfilePage() {
     }
   }
 
-  const isPatient = user.user_type === 'patient'
+  const isPatient = user.userType === 'patient'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
