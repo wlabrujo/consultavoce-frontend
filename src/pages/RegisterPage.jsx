@@ -204,7 +204,10 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      console.log('Enviando cadastro...', { accountType, email: formData.email })
+      // Preparar especialidades (remover vazias)
+      const filledSpecialties = formData.specialties.filter(s => s && s.trim() !== '')
+      
+      console.log('Enviando cadastro...', { accountType, email: formData.email, specialties: filledSpecialties })
       
       const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       
@@ -231,6 +234,7 @@ export default function RegisterPage() {
           city: formData.city,
           state: formData.state,
           profession: formData.profession,
+          specialties: filledSpecialties,
           regulatoryBody: formData.regulatoryBody,
           regulatoryBodyState: formData.regulatoryBodyState,
           registrationNumber: formData.registrationNumber,
