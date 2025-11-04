@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /appointments
+Disallow: /profile
+Disallow: /api/
+
+Sitemap: https://vitabrasil.com.br/sitemap.xml

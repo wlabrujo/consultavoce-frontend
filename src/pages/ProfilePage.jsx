@@ -1,0 +1,573 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { User, Mail, Phone, FileText, Save, Award, DollarSign } from 'lucide-react'
+import Header from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
+import { professions, specialtiesByProfession, regulatoryBodiesByProfession } from '@/data/professions'
+
+export default function ProfilePage() {
+  const { user, updateUser, loading } = useAuth()
+  const navigate = useNavigate()
+  const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    preferred_name: user?.preferred_name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    cpf: user?.cpf || '',
+    cep: user?.cep || '',
+    street: user?.street || '',
+    number: user?.number || '',
+    complement: user?.complement || '',
+    neighborhood: user?.neighborhood || '',
+    city: user?.city || '',
+    state: user?.state || '',
+    profession: user?.profession || '',
+    specialties: Array.isArray(user?.specialties) ? user.specialties : (user?.specialties ? user.specialties.split(',').map(s => s.trim()) : ['']),
+    regulatoryBody: user?.regulatoryBody || '',
+    registrationNumber: user?.registrationNumber || '',
+    description: user?.description || '',
+    pixKey: user?.pixKey || '',
+    bankName: user?.bankName || '',
+    bankAgency: user?.bankAgency || '',
+    bankAccount: user?.bankAccount || ''
+  })
+
+  // Wait for auth to load
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+        <div className="text-lg text-gray-600">Carregando...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    navigate('/login')
+    return null
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSpecialtyChange = (index, value) => {
+    const newSpecialties = [...formData.specialties]
+    newSpecialties[index] = value
+    setFormData(prev => ({
+      ...prev,
+      specialties: newSpecialties
+    }))
+  }
+
+  const addSpecialty = () => {
+    if (formData.specialties.length < 3) {
+      setFormData(prev => ({
+        ...prev,
+        specialties: [...prev.specialties, '']
+      }))
+    }
+  }
+
+  const removeSpecialty = (index) => {
+    if (formData.specialties.length > 1) {
+      const newSpecialties = formData.specialties.filter((_, i) => i !== index)
+      setFormData(prev => ({
+        ...prev,
+        specialties: newSpecialties
+      }))
+    }
+  }
+
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('vitabrasil_token')
+      if (!token) {
+        alert('Sessão expirada. Faça login novamente.')
+        navigate('/login')
+        return
+      }
+
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      
+      const response = await fetch(`${API_URL}/users/profile`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao atualizar perfil')
+      }
+
+      const data = await response.json()
+      
+      // Update context with data from backend
+      updateUser(data.user)
+      
+      setIsEditing(false)
+      alert('Perfil atualizado com sucesso!')
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      alert(`Erro ao atualizar perfil: ${error.message}`)
+    }
+  }
+
+  const isPatient = user.user_type === 'patient'
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <Header />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Meu Perfil
+            </h1>
+            <p className="text-xl text-gray-600">
+              Gerencie suas informações pessoais
+            </p>
+          </div>
+          <Button
+            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+            className={isEditing ? 'bg-gradient-to-r from-green-600 to-blue-600' : ''}
+          >
+            {isEditing ? (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Alterações
+              </>
+            ) : (
+              'Editar Perfil'
+            )}
+          </Button>
+        </div>
+
+        {/* Profile Info */}
+        <Card>
+            <CardHeader>
+              <CardTitle>Informações Pessoais</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Nome Completo
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Como quer ser chamado?
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      type="text"
+                      name="preferred_name"
+                      value={formData.preferred_name}
+                      onChange={handleInputChange}
+                      placeholder="Apelido ou nome preferido"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.preferred_name || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Email
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Telefone
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="(11) 99999-9999"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.phone || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    CPF
+                  </label>
+                  <p className="text-gray-900">{user.cpf || 'Não informado'}</p>
+                </div>
+              </div>
+
+              {/* Endereço */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Endereço</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      CEP
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="cep"
+                        value={formData.cep}
+                        onChange={handleInputChange}
+                        placeholder="00000-000"
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.cep || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Rua
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="street"
+                        value={formData.street}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.street || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Número
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="number"
+                        value={formData.number}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.number || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Complemento
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="complement"
+                        value={formData.complement}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.complement || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Bairro
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="neighborhood"
+                        value={formData.neighborhood}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.neighborhood || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Cidade
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.city || 'Não informado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Estado
+                    </label>
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        placeholder="RJ"
+                      />
+                    ) : (
+                      <p className="text-gray-900">{user.state || 'Não informado'}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+        {/* Professional Info */}
+        {!isPatient && (
+          <>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Award className="h-5 w-5 mr-2 text-green-600" />
+                Informações Profissionais
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Profissão
+                  </label>
+                  <p className="text-gray-900">{user.profession}</p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Registro Profissional
+                  </label>
+                  <p className="text-gray-900">
+                    {user.regulatoryBody} {user.registrationNumber}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Especialidades
+                </label>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    {formData.specialties.map((specialty, index) => (
+                      <div key={index} className="flex gap-2">
+                        <select
+                          value={specialty}
+                          onChange={(e) => handleSpecialtyChange(index, e.target.value)}
+                          className="flex-1 p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="">Selecione</option>
+                          {(specialtiesByProfession[user.profession] || []).map(spec => (
+                            <option key={spec} value={spec}>{spec}</option>
+                          ))}
+                        </select>
+                        {formData.specialties.length > 1 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeSpecialty(index)}
+                          >
+                            Remover
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    {formData.specialties.length < 3 && (
+                      <Button variant="outline" size="sm" onClick={addSpecialty}>
+                        Adicionar Especialidade
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {user.specialties?.map((spec, i) => (
+                      <span key={i} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Descrição Profissional
+                </label>
+                {isEditing ? (
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-gray-300 rounded-md h-24 resize-none"
+                    placeholder="Conte sobre sua experiência..."
+                  />
+                ) : (
+                  <p className="text-gray-900">{user.description || 'Não informado'}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+                Dados Bancários
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Chave PIX
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="pixKey"
+                      value={formData.pixKey}
+                      onChange={handleInputChange}
+                      placeholder="CPF, email, telefone ou chave aleatória"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.pixKey || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Banco
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankName"
+                      value={formData.bankName}
+                      onChange={handleInputChange}
+                      placeholder="Nome do banco"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.bankName || 'Não informado'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Agência
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankAgency"
+                      value={formData.bankAgency}
+                      onChange={handleInputChange}
+                      placeholder="0000"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.bankAgency || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Conta Corrente
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankAccount"
+                      value={formData.bankAccount}
+                      onChange={handleInputChange}
+                      placeholder="00000-0"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.bankAccount || 'Não informado'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-700">
+                  💡 Estes dados serão usados para transferência dos pagamentos recebidos através da plataforma.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          </>
+        )}
+
+        {/* Security */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Segurança</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button variant="outline">
+              Alterar Senha
+            </Button>
+
+          </CardContent>
+        </Card>
+
+        {isEditing && (
+          <div className="mt-6 flex gap-4 justify-end">
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSave}
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Salvar Alterações
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
