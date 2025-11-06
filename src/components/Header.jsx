@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Heart, LogOut, User, Calendar, MessageCircle } from 'lucide-react'
+import { Heart, LogOut, User, Calendar, MessageCircle, Search, DollarSign, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -11,6 +11,9 @@ export default function Header() {
     logout()
     navigate('/')
   }
+
+  const isPatient = user?.userType === 'patient'
+  const isProfessional = user?.userType === 'professional'
 
   return (
     <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b sticky top-0 z-50">
@@ -30,31 +33,58 @@ export default function Header() {
                     Dashboard
                   </Button>
                 </Link>
+
+                {/* Menu específico para PACIENTES */}
+                {isPatient && (
+                  <Link to="/search">
+                    <Button variant="ghost" size="sm">
+                      <Search className="h-4 w-4 mr-2" />
+                      Buscar Médico
+                    </Button>
+                  </Link>
+                )}
+
                 <Link to="/profile">
                   <Button variant="ghost" size="sm" className="font-semibold">
                     <User className="h-4 w-4 mr-2" />
                     Meu Perfil
                   </Button>
                 </Link>
-                {user.accountType === 'patient' && (
-                  <Link to="/search">
+
+                {/* Menu específico para PROFISSIONAIS */}
+                {isProfessional && (
+                  <Link to="/financial">
                     <Button variant="ghost" size="sm">
-                      Buscar Profissionais
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      Finanças
                     </Button>
                   </Link>
                 )}
+
                 <Link to="/appointments">
                   <Button variant="ghost" size="sm">
                     <Calendar className="h-4 w-4 mr-2" />
                     Consultas
                   </Button>
                 </Link>
+
+                {/* Meus Pacientes - apenas para profissionais */}
+                {isProfessional && (
+                  <Link to="/my-patients">
+                    <Button variant="ghost" size="sm">
+                      <Users className="h-4 w-4 mr-2" />
+                      Meus Pacientes
+                    </Button>
+                  </Link>
+                )}
+
                 <Link to="/support">
                   <Button variant="ghost" size="sm">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Suporte
                   </Button>
                 </Link>
+
                 <Button 
                   variant="ghost" 
                   size="sm"

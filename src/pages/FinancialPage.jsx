@@ -1,226 +1,421 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Heart, ArrowLeft, DollarSign, TrendingUp, Calendar, Download, Filter } from 'lucide-react'
+import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { DollarSign, CreditCard, Save, AlertCircle } from 'lucide-react'
+import Header from '@/components/Header'
 
 export default function FinancialPage() {
-  const navigate = useNavigate()
-  const [transactions, setTransactions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [selectedPeriod, setSelectedPeriod] = useState('month')
+  const { user, updateUser, loading } = useAuth()
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
-  useEffect(() => {
-    // TODO: Buscar transações da API
-    // Por enquanto, array vazio
-    setLoading(false)
-  }, [selectedPeriod])
+  const [formData, setFormData] = useState({
+    // Dados Bancários
+    pixKey: user?.banking?.pix_key || '',
+    bankName: user?.banking?.bank_name || '',
+    bankAgency: user?.banking?.bank_agency || '',
+    bankAccount: user?.banking?.bank_account || '',
+    
+    // Preços de Consultas
+    onlinePrice: user?.pricing?.online || '',
+    inPersonPrice: user?.pricing?.in_person || '',
+    homePrice: user?.pricing?.home || '',
+    
+    // Ativar/Desativar tipos de consulta
+    onlineEnabled: user?.pricing?.online_enabled ?? true,
+    inPersonEnabled: user?.pricing?.in_person_enabled ?? true,
+    homeEnabled: user?.pricing?.home_enabled ?? false
+  })
 
-  const stats = {
-    totalReceived: 0,
-    pendingPayments: 0,
-    thisMonth: 0,
-    lastMonth: 0
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true)
+      setError('')
+      setSuccess('')
+
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      
+      const response = await fetch(`${API_URL}/api/users/profile`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          // Dados bancários
+          pixKey: formData.pixKey,
+          bankName: formData.bankName,
+          bankAgency: formData.bankAgency,
+          bankAccount: formData.bankAccount,
+          
+          // Preços
+          onlinePrice: formData.onlinePrice ? parseFloat(formData.onlinePrice) : null,
+          inPersonPrice: formData.inPersonPrice ? parseFloat(formData.inPersonPrice) : null,
+          homePrice: formData.homePrice ? parseFloat(formData.homePrice) : null,
+          
+          // Habilitação de tipos
+          onlineEnabled: formData.onlineEnabled,
+          inPersonEnabled: formData.inPersonEnabled,
+          homeEnabled: formData.homeEnabled
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar dados financeiros')
+      }
+
+      const data = await response.json()
+      await updateUser(data.user)
+      
+      setSuccess('Dados financeiros atualizados com sucesso!')
+      setIsEditing(false)
+      
+      // Limpar mensagem de sucesso após 3 segundos
+      setTimeout(() => setSuccess(''), 3000)
+      
+    } catch (err) {
+      console.error('Error updating financial data:', err)
+      setError(err.message || 'Erro ao atualizar dados financeiros')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Carregando...</p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // Redirecionar se não for profissional
+  if (user?.userType !== 'professional') {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
+          <Card className="max-w-md">
+            <CardContent className="pt-6">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-center text-gray-700">
+                Esta página é exclusiva para profissionais de saúde.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Finanças</h1>
+            <p className="text-gray-600 mt-2">Gerencie seus dados bancários e preços de consultas</p>
+          </div>
+
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-700">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-700">{success}</p>
+            </div>
+          )}
+
+          {/* Dados Bancários */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2 text-green-600" />
+                  Dados Bancários
+                </div>
+                {!isEditing && (
+                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                    Editar
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Chave PIX
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="pixKey"
+                      value={formData.pixKey}
+                      onChange={handleInputChange}
+                      placeholder="CPF, email, telefone ou chave aleatória"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.banking?.pix_key || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Banco
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankName"
+                      value={formData.bankName}
+                      onChange={handleInputChange}
+                      placeholder="Nome ou código do banco"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.banking?.bank_name || 'Não informado'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Agência
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankAgency"
+                      value={formData.bankAgency}
+                      onChange={handleInputChange}
+                      placeholder="0000"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.banking?.bank_agency || 'Não informado'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Conta Corrente
+                  </label>
+                  {isEditing ? (
+                    <Input
+                      name="bankAccount"
+                      value={formData.bankAccount}
+                      onChange={handleInputChange}
+                      placeholder="00000-0"
+                    />
+                  ) : (
+                    <p className="text-gray-900">{user.banking?.bank_account || 'Não informado'}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-700">
+                  💡 Estes dados serão usados para transferência dos pagamentos recebidos através da plataforma.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Configuração de Preços */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+                Preços das Consultas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Consulta Online */}
+              <div className="border-b pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="onlineEnabled"
+                      checked={formData.onlineEnabled}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="h-4 w-4 text-green-600 rounded mr-3"
+                    />
+                    <label className="text-sm font-medium text-gray-900">
+                      Consulta Online (Telemedicina)
+                    </label>
+                  </div>
+                </div>
+                {formData.onlineEnabled && (
+                  <div className="ml-7">
+                    <label className="text-sm text-gray-600 mb-1 block">Valor (R$)</label>
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        name="onlinePrice"
+                        value={formData.onlinePrice}
+                        onChange={handleInputChange}
+                        placeholder="150.00"
+                        step="0.01"
+                        min="0"
+                        className="max-w-xs"
+                      />
+                    ) : (
+                      <p className="text-gray-900">
+                        {user.pricing?.online ? `R$ ${parseFloat(user.pricing.online).toFixed(2)}` : 'Não definido'}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Consulta Presencial */}
+              <div className="border-b pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="inPersonEnabled"
+                      checked={formData.inPersonEnabled}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="h-4 w-4 text-green-600 rounded mr-3"
+                    />
+                    <label className="text-sm font-medium text-gray-900">
+                      Consulta Presencial (Consultório)
+                    </label>
+                  </div>
+                </div>
+                {formData.inPersonEnabled && (
+                  <div className="ml-7">
+                    <label className="text-sm text-gray-600 mb-1 block">Valor (R$)</label>
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        name="inPersonPrice"
+                        value={formData.inPersonPrice}
+                        onChange={handleInputChange}
+                        placeholder="200.00"
+                        step="0.01"
+                        min="0"
+                        className="max-w-xs"
+                      />
+                    ) : (
+                      <p className="text-gray-900">
+                        {user.pricing?.in_person ? `R$ ${parseFloat(user.pricing.in_person).toFixed(2)}` : 'Não definido'}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Consulta Domiciliar */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="homeEnabled"
+                      checked={formData.homeEnabled}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="h-4 w-4 text-green-600 rounded mr-3"
+                    />
+                    <label className="text-sm font-medium text-gray-900">
+                      Consulta Domiciliar (Atendimento em casa)
+                    </label>
+                  </div>
+                </div>
+                {formData.homeEnabled && (
+                  <div className="ml-7">
+                    <label className="text-sm text-gray-600 mb-1 block">Valor (R$)</label>
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        name="homePrice"
+                        value={formData.homePrice}
+                        onChange={handleInputChange}
+                        placeholder="300.00"
+                        step="0.01"
+                        min="0"
+                        className="max-w-xs"
+                      />
+                    ) : (
+                      <p className="text-gray-900">
+                        {user.pricing?.home ? `R$ ${parseFloat(user.pricing.home).toFixed(2)}` : 'Não definido'}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                <p className="text-sm text-yellow-700">
+                  ⚠️ Os preços configurados aqui serão exibidos para os pacientes ao agendarem consultas.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Botões de Ação */}
+          {isEditing && (
+            <div className="mt-6 flex gap-4 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(false)
+                  setError('')
+                  // Resetar formData
+                  setFormData({
+                    pixKey: user?.banking?.pix_key || '',
+                    bankName: user?.banking?.bank_name || '',
+                    bankAgency: user?.banking?.bank_agency || '',
+                    bankAccount: user?.banking?.bank_account || '',
+                    onlinePrice: user?.pricing?.online || '',
+                    inPersonPrice: user?.pricing?.in_person || '',
+                    homePrice: user?.pricing?.home || '',
+                    onlineEnabled: user?.pricing?.online_enabled ?? true,
+                    inPersonEnabled: user?.pricing?.in_person_enabled ?? true,
+                    homeEnabled: user?.pricing?.home_enabled ?? false
+                  })
+                }}
+                disabled={isSaving}
               >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              <Heart className="w-8 h-8 text-green-600" />
-              <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                VitaBrasil
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Financeiro</h1>
-          <p className="text-gray-600">Acompanhe seus ganhos e transações</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-              <span className="text-xs text-green-600 font-semibold">Este Mês</span>
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">
-              R$ {stats.thisMonth.toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-600">Receita mensal</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-xs text-blue-600 font-semibold">Total</span>
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">
-              R$ {stats.totalReceived.toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-600">Total recebido</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-yellow-600" />
-              </div>
-              <span className="text-xs text-yellow-600 font-semibold">Pendente</span>
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">
-              R$ {stats.pendingPayments.toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-600">A receber</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-              <span className="text-xs text-purple-600 font-semibold">Mês Anterior</span>
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">
-              R$ {stats.lastMonth.toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-600">Receita anterior</p>
-          </div>
-        </div>
-
-        {/* Filters and Actions */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <Filter className="w-5 h-5 text-gray-400" />
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
               >
-                <option value="week">Esta Semana</option>
-                <option value="month">Este Mês</option>
-                <option value="quarter">Este Trimestre</option>
-                <option value="year">Este Ano</option>
-                <option value="all">Todo Período</option>
-              </select>
-            </div>
-            <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-              <Download className="w-4 h-4 mr-2" />
-              Exportar Relatório
-            </button>
-          </div>
-        </div>
-
-        {/* Transactions List */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">Transações Recentes</h2>
-          </div>
-
-          {loading ? (
-            <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-              <p className="mt-4 text-gray-600">Carregando transações...</p>
-            </div>
-          ) : transactions.length === 0 ? (
-            <div className="p-12 text-center">
-              <DollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nenhuma transação encontrada
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Suas transações aparecerão aqui após realizar atendimentos
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Data
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Paciente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tipo
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Valor
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((transaction) => (
-                    <tr key={transaction.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(transaction.date).toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.patientName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {transaction.type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                        R$ {transaction.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          transaction.status === 'paid' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {transaction.status === 'paid' ? 'Pago' : 'Pendente'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <Save className="h-4 w-4 mr-2" />
+                {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
             </div>
           )}
         </div>
-
-        {/* Info Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <DollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">Informações sobre Pagamentos</h3>
-              <p className="mt-1 text-sm text-blue-700">
-                Os pagamentos são processados automaticamente e depositados na sua conta bancária cadastrada. 
-                O prazo de repasse é de até 2 dias úteis após a consulta realizada.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    </>
   )
 }
 

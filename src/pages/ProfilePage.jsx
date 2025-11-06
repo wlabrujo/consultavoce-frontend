@@ -30,10 +30,7 @@ export default function ProfilePage() {
     regulatoryBody: user?.regulatoryBody || '',
     registrationNumber: user?.registrationNumber || '',
     description: user?.description || '',
-    pixKey: user?.pixKey || '',
-    bankName: user?.bankName || '',
-    bankAgency: user?.bankAgency || '',
-    bankAccount: user?.bankAccount || ''
+
   })
 
   // Wait for auth to load
@@ -453,89 +450,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
-                Dados Bancários
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Chave PIX
-                  </label>
-                  {isEditing ? (
-                    <Input
-                      name="pixKey"
-                      value={formData.pixKey}
-                      onChange={handleInputChange}
-                      placeholder="CPF, email, telefone ou chave aleatória"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{user.pixKey || 'Não informado'}</p>
-                  )}
-                </div>
 
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Banco
-                  </label>
-                  {isEditing ? (
-                    <Input
-                      name="bankName"
-                      value={formData.bankName}
-                      onChange={handleInputChange}
-                      placeholder="Nome do banco"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{user.bankName || 'Não informado'}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Agência
-                  </label>
-                  {isEditing ? (
-                    <Input
-                      name="bankAgency"
-                      value={formData.bankAgency}
-                      onChange={handleInputChange}
-                      placeholder="0000"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{user.bankAgency || 'Não informado'}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Conta Corrente
-                  </label>
-                  {isEditing ? (
-                    <Input
-                      name="bankAccount"
-                      value={formData.bankAccount}
-                      onChange={handleInputChange}
-                      placeholder="00000-0"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{user.bankAccount || 'Não informado'}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-700">
-                  💡 Estes dados serão usados para transferência dos pagamentos recebidos através da plataforma.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
           </>
         )}
 
