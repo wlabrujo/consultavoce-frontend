@@ -233,15 +233,15 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-sm text-gray-600">Conselho/Registro</p>
                       <p className="font-semibold text-gray-900">
-                        {user.regulatory_body && user.registration_number 
-                          ? `${user.regulatory_body} ${user.registration_number}` 
+                        {user.regulatoryBody && user.registrationNumber 
+                          ? `${user.regulatoryBody} ${user.registrationNumber}` 
                           : 'Não informado'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Localização</p>
                       <p className="font-semibold text-gray-900">
-                        {user.city && user.state ? `${user.city}, ${user.state}` : 'Não informado'}
+                        {user.address?.city && user.address?.state ? `${user.address.city}, ${user.address.state}` : 'Não informado'}
                       </p>
                     </div>
                   </div>
