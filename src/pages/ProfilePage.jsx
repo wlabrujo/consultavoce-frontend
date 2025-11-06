@@ -18,13 +18,13 @@ export default function ProfilePage() {
     email: user?.email || '',
     phone: user?.phone || '',
     cpf: user?.cpf || '',
-    cep: user?.cep || '',
-    street: user?.street || '',
-    number: user?.number || '',
-    complement: user?.complement || '',
-    neighborhood: user?.neighborhood || '',
-    city: user?.city || '',
-    state: user?.state || '',
+    cep: user?.address?.cep || '',
+    street: user?.address?.street || '',
+    number: user?.address?.number || '',
+    complement: user?.address?.complement || '',
+    neighborhood: user?.address?.neighborhood || '',
+    city: user?.address?.city || '',
+    state: user?.address?.state || '',
     profession: user?.profession || '',
     specialties: Array.isArray(user?.specialties) ? user.specialties : (user?.specialties ? user.specialties.split(',').map(s => s.trim()) : ['']),
     regulatoryBody: user?.regulatoryBody || '',
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                         placeholder="00000-000"
                       />
                     ) : (
-                      <p className="text-gray-900">{user.cep || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.cep || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -270,7 +270,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <p className="text-gray-900">{user.street || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.street || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <p className="text-gray-900">{user.number || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.number || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -302,7 +302,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <p className="text-gray-900">{user.complement || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.complement || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <p className="text-gray-900">{user.neighborhood || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.neighborhood || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <p className="text-gray-900">{user.city || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.city || 'Não informado'}</p>
                     )}
                   </div>
 
@@ -351,7 +351,7 @@ export default function ProfilePage() {
                         placeholder="RJ"
                       />
                     ) : (
-                      <p className="text-gray-900">{user.state || 'Não informado'}</p>
+                      <p className="text-gray-900">{user.address?.state || 'Não informado'}</p>
                     )}
                   </div>
                 </div>
