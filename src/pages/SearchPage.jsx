@@ -278,6 +278,33 @@ export default function SearchPage() {
                       </p>
                     )}
 
+                    {/* Preços */}
+                    {(prof.pricing?.online || prof.pricing?.in_person || prof.pricing?.home) && (
+                      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">Valores:</p>
+                        <div className="space-y-1 text-sm">
+                          {prof.pricing.online && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Online:</span>
+                              <span className="font-semibold text-green-700">R$ {prof.pricing.online.toFixed(2)}</span>
+                            </div>
+                          )}
+                          {prof.pricing.in_person && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Presencial:</span>
+                              <span className="font-semibold text-green-700">R$ {prof.pricing.in_person.toFixed(2)}</span>
+                            </div>
+                          )}
+                          {prof.pricing.home && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Domiciliar:</span>
+                              <span className="font-semibold text-green-700">R$ {prof.pricing.home.toFixed(2)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     <Button 
                       className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                       onClick={() => navigate(`/professional/${prof.id}`)}

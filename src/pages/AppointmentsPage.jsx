@@ -1,18 +1,53 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, MapPin, User, Video, X, CheckCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, User, Video, X, CheckCircle, AlertCircle } from 'lucide-react'
 import Header from '@/components/Header'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function AppointmentsPage() {
-  const { user, loading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('upcoming')
+  const [appointments, setAppointments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Wait for auth to load
-  if (loading) {
+  useEffect(() => {
+    if (!authLoading && user) {
+      fetchAppointments()
+    }
+  }, [authLoading, user])
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const token = localStorage.getItem('vitabrasil_token')
+      
+      const response = await fetch(`${API_URL}/api/appointments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar agendamentos')
+      }
+      
+      const data = await response.json()
+      setAppointments(data.appointments || [])
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
         <div className="text-lg text-gray-600">Carregando...</div>
@@ -25,11 +60,61 @@ export default function AppointmentsPage() {
     return null
   }
 
-  const isPatient = user.user_type === 'patient'
+  const isPatient = user.userType === 'patient'
 
-  // Arrays vazios - sem dados mockados
-  const upcomingAppointments = []
-  const pastAppointments = []
+  // Separar agendamentos por status
+  const now = new Date()
+  const upcomingAppointments = appointments.filter(apt => {
+    const aptDate = new Date(`${apt.date}T${apt.time}`)
+    return aptDate >= now && apt.status !== 'cancelled'
+  })
+  
+  const pastAppointments = appointments.filter(apt => {
+    const aptDate = new Date(`${apt.date}T${apt.time}`)
+    return aptDate < now || apt.status === 'cancelled'
+  })
+
+  const getTypeLabel = (type) => {
+    const types = {
+      'online': 'Online (Telemedicina)',
+      'in_person': 'Presencial (Consultório)',
+      'home': 'Domiciliar (Casa)'
+    }
+    return types[type] || type
+  }
+
+  const getStatusColor = (status) => {
+    const colors = {
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'confirmed': 'bg-green-100 text-green-800',
+      'cancelled': 'bg-red-100 text-red-800',
+      'completed': 'bg-blue-100 text-blue-800'
+    }
+    return colors[status] || 'bg-gray-100 text-gray-800'
+  }
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      'pending': 'Pendente',
+      'confirmed': 'Confirmada',
+      'cancelled': 'Cancelada',
+      'completed': 'Realizada'
+    }
+    return labels[status] || status
+  }
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    })
+  }
+
+  const formatTime = (timeStr) => {
+    return timeStr.substring(0, 5) // HH:MM
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -45,6 +130,13 @@ export default function AppointmentsPage() {
             Gerencie seus agendamentos
           </p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
+            <AlertCircle className="h-5 w-5" />
+            {error}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6">
@@ -66,143 +158,161 @@ export default function AppointmentsPage() {
           </Button>
         </div>
 
-        {/* Content */}
-        {activeTab === 'upcoming' ? (
-          <div className="space-y-4">
-            {upcomingAppointments.length === 0 ? (
-              <Card>
-                <CardContent className="p-12">
-                  <div className="text-center">
-                    <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Nenhuma consulta agendada
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {isPatient 
-                        ? 'Você ainda não tem consultas marcadas. Busque profissionais e agende agora!'
-                        : 'Você ainda não tem atendimentos agendados. Seus pacientes poderão agendar pelo seu perfil.'}
-                    </p>
-                    {isPatient && (
-                      <Button onClick={() => navigate('/search')}>
-                        <User className="h-4 w-4 mr-2" />
-                        Buscar Profissionais
-                      </Button>
+        {/* Appointments List */}
+        <div className="space-y-4">
+          {activeTab === 'upcoming' && upcomingAppointments.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Calendar className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Nenhuma consulta agendada
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  {isPatient 
+                    ? 'Você ainda não tem atendimentos agendados. Seus pacientes poderão agendar pelo seu perfil.'
+                    : 'Você ainda não tem consultas agendadas. Busque profissionais para agendar.'}
+                </p>
+                {isPatient && (
+                  <Button 
+                    onClick={() => navigate('/search')}
+                    className="bg-gradient-to-r from-green-600 to-blue-600"
+                  >
+                    Buscar Profissionais
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === 'past' && pastAppointments.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <CheckCircle className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Nenhuma consulta realizada
+                </h3>
+                <p className="text-gray-500">
+                  Suas consultas concluídas aparecerão aqui.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Upcoming Appointments */}
+          {activeTab === 'upcoming' && upcomingAppointments.map(apt => (
+            <Card key={apt.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-600 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                        {isPatient 
+                          ? apt.professional?.name?.charAt(0) || 'P'
+                          : apt.patient?.name?.charAt(0) || 'P'}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {isPatient ? apt.professional?.name : apt.patient?.name}
+                        </h3>
+                        {isPatient && apt.professional?.profession && (
+                          <p className="text-sm text-gray-600">{apt.professional.profession}</p>
+                        )}
+                        {!isPatient && apt.patient?.phone && (
+                          <p className="text-sm text-gray-600">{apt.patient.phone}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Calendar className="h-4 w-4 text-green-600" />
+                        {formatDate(apt.date)}
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Clock className="h-4 w-4 text-green-600" />
+                        {formatTime(apt.time)}
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        {apt.type === 'online' ? (
+                          <Video className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <MapPin className="h-4 w-4 text-green-600" />
+                        )}
+                        {getTypeLabel(apt.type)}
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700 font-semibold">
+                        R$ {apt.price?.toFixed(2)}
+                      </div>
+                    </div>
+
+                    {apt.notes && (
+                      <p className="mt-3 text-sm text-gray-600 italic">
+                        Observações: {apt.notes}
+                      </p>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            ) : (
-              upcomingAppointments.map((appointment) => (
-                <Card key={appointment.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-6">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-green-600">
-                            {appointment.date.split('/')[0]}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {appointment.date.split('/')[1]}/{appointment.date.split('/')[2]}
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {isPatient ? appointment.professional : appointment.patient}
-                          </h3>
-                          <p className="text-gray-600">{appointment.specialty}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {appointment.time}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {appointment.type}
-                            </div>
-                          </div>
-                          {appointment.address && (
-                            <p className="text-sm text-gray-500 mt-1">{appointment.address}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          Detalhes
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-50">
-                          <X className="h-4 w-4 mr-1" />
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {pastAppointments.length === 0 ? (
-              <Card>
-                <CardContent className="p-12">
-                  <div className="text-center">
-                    <CheckCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      Nenhuma consulta realizada
-                    </h3>
-                    <p className="text-gray-600">
-                      {isPatient 
-                        ? 'Seu histórico de consultas aparecerá aqui após os atendimentos.'
-                        : 'Seu histórico de atendimentos aparecerá aqui após as consultas.'}
-                    </p>
+
+                  <div className="ml-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(apt.status)}`}>
+                      {getStatusLabel(apt.status)}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            ) : (
-              pastAppointments.map((appointment) => (
-                <Card key={appointment.id} className="opacity-75">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-6">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-400">
-                            {appointment.date.split('/')[0]}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {appointment.date.split('/')[1]}/{appointment.date.split('/')[2]}
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {isPatient ? appointment.professional : appointment.patient}
-                          </h3>
-                          <p className="text-gray-600">{appointment.specialty}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {appointment.time}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {appointment.type}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                              {appointment.status}
-                            </div>
-                          </div>
-                        </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Past Appointments */}
+          {activeTab === 'past' && pastAppointments.map(apt => (
+            <Card key={apt.id} className="opacity-75">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-12 w-12 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-lg">
+                        {isPatient 
+                          ? apt.professional?.name?.charAt(0) || 'P'
+                          : apt.patient?.name?.charAt(0) || 'P'}
                       </div>
-                      <Button variant="outline" size="sm">
-                        Ver Detalhes
-                      </Button>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-700">
+                          {isPatient ? apt.professional?.name : apt.patient?.name}
+                        </h3>
+                        {isPatient && apt.professional?.profession && (
+                          <p className="text-sm text-gray-500">{apt.professional.profession}</p>
+                        )}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        )}
+
+                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(apt.date)}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        {formatTime(apt.time)}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {apt.type === 'online' ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                        {getTypeLabel(apt.type)}
+                      </div>
+                      <div className="flex items-center gap-2 font-semibold">
+                        R$ {apt.price?.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="ml-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(apt.status)}`}>
+                      {getStatusLabel(apt.status)}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )
