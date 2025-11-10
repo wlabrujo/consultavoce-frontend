@@ -57,7 +57,7 @@ export default function ProfessionalProfilePage() {
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
   ]
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!user) {
       alert('Você precisa estar logado para agendar uma consulta!')
       navigate('/login')
@@ -69,8 +69,42 @@ export default function ProfessionalProfilePage() {
       return
     }
 
-    alert(`Consulta agendada com sucesso!\n\nProfissional: ${professional.name}\nData: ${selectedDate}\nHorário: ${selectedTime}\nTipo: ${selectedType}`)
-    navigate('/appointments')
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const token = localStorage.getItem('vitabrasil_token')
+      
+      // Determinar preço baseado no tipo
+      let price = 0
+      if (selectedType === 'Online') price = professional.online_price
+      else if (selectedType === 'Presencial') price = professional.in_person_price
+      else if (selectedType === 'Domiciliar') price = professional.home_price
+      
+      const response = await fetch(`${API_URL}/api/appointments/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          professional_id: professional.id,
+          date: selectedDate,
+          time: selectedTime,
+          type: selectedType,
+          price: price
+        })
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao criar agendamento')
+      }
+      
+      alert(`Consulta agendada com sucesso!\n\nProfissional: ${professional.name}\nData: ${selectedDate}\nHorário: ${selectedTime}\nTipo: ${selectedType}\nValor: R$ ${price.toFixed(2)}`)
+      navigate('/appointments')
+    } catch (error) {
+      console.error('Error booking:', error)
+      alert('Erro ao agendar consulta: ' + error.message)
+    }
   }
 
   if (loading) {
