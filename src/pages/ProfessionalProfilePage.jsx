@@ -127,6 +127,18 @@ export default function ProfessionalProfilePage() {
       else if (selectedType === 'Presencial') price = professional.pricing?.in_person
       else if (selectedType === 'Domiciliar') price = professional.pricing?.home
       
+      // Converter data de DD/MM/YYYY para YYYY-MM-DD
+      const [day, month, year] = selectedDate.split('/')
+      const formattedDate = `${year}-${month}-${day}`
+      
+      // Converter tipo para lowercase
+      const typeMap = {
+        'Online': 'online',
+        'Presencial': 'in_person',
+        'Domiciliar': 'home'
+      }
+      const formattedType = typeMap[selectedType] || selectedType.toLowerCase()
+      
       const response = await fetch(`${API_URL}/api/appointments/`, {
         method: 'POST',
         headers: {
@@ -135,9 +147,9 @@ export default function ProfessionalProfilePage() {
         },
         body: JSON.stringify({
           professional_id: professional.id,
-          date: selectedDate,
+          date: formattedDate,
           time: selectedTime,
-          type: selectedType,
+          type: formattedType,
           price: price
         })
       })
