@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Calendar, Phone, Mail, FileText } from 'lucide-react'
+import { Search, Calendar, Phone, Mail, FileText, Heart } from 'lucide-react'
 import Header from '@/components/Header'
 
 export default function MyPatientsPage() {
