@@ -16,46 +16,94 @@ export default function ProfessionalProfilePage() {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
   const [selectedType, setSelectedType] = useState('')
+  const [availability, setAvailability] = useState([])
+  const [availableDates, setAvailableDates] = useState([])
+  const [availableTimes, setAvailableTimes] = useState([])
 
-  // Buscar profissional da API
+  // Buscar profissional e disponibilidade da API
   useEffect(() => {
-    const fetchProfessional = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
         setError(null)
         
         const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-        const response = await fetch(`${API_URL}/api/professionals/${id}`)
         
-        if (!response.ok) {
-          throw new Error('Profissional não encontrado')
+        // Buscar profissional
+        const profResponse = await fetch(`${API_URL}/api/professionals/${id}`)
+        if (!profResponse.ok) throw new Error('Profissional não encontrado')
+        const profData = await profResponse.json()
+        setProfessional(profData.professional)
+        
+        // Buscar disponibilidade
+        const availResponse = await fetch(`${API_URL}/api/availability/${id}`)
+        if (availResponse.ok) {
+          const availData = await availResponse.json()
+          setAvailability(availData.availability || [])
+          
+          // Gerar próximas datas disponíveis (próximos 30 dias)
+          const dates = []
+          const today = new Date()
+          for (let i = 1; i <= 30; i++) {
+            const date = new Date(today)
+            date.setDate(today.getDate() + i)
+            const dayOfWeek = date.getDay()
+            
+            // Verificar se tem disponibilidade neste dia da semana
+            const hasAvailability = availData.availability.some(a => a.day_of_week === dayOfWeek)
+            if (hasAvailability) {
+              dates.push(date.toLocaleDateString('pt-BR'))
+            }
+          }
+          setAvailableDates(dates)
         }
-        
-        const data = await response.json()
-        setProfessional(data.professional)
       } catch (err) {
-        console.error('Error fetching professional:', err)
+        console.error('Error fetching data:', err)
         setError(err.message)
       } finally {
         setLoading(false)
       }
     }
     
-    fetchProfessional()
+    fetchData()
   }, [id])
-
-  const availableDates = [
-    '15/11/2025',
-    '16/11/2025',
-    '17/11/2025',
-    '18/11/2025',
-    '19/11/2025'
-  ]
-
-  const availableTimes = [
-    '09:00', '09:30', '10:00', '10:30', '11:00',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
-  ]
+  
+  // Atualizar horários disponíveis quando data for selecionada
+  useEffect(() => {
+    if (!selectedDate || availability.length === 0) {
+      setAvailableTimes([])
+      return
+    }
+    
+    // Converter data selecionada para dia da semana
+    const [day, month, year] = selectedDate.split('/')
+    const date = new Date(year, month - 1, day)
+    const dayOfWeek = date.getDay()
+    
+    // Buscar slots deste dia da semana
+    const daySlots = availability.filter(a => a.day_of_week === dayOfWeek)
+    
+    // Gerar horários de 30 em 30 minutos
+    const times = []
+    daySlots.forEach(slot => {
+      const [startHour, startMin] = slot.start_time.split(':').map(Number)
+      const [endHour, endMin] = slot.end_time.split(':').map(Number)
+      
+      let currentHour = startHour
+      let currentMin = startMin
+      
+      while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+        times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
+        currentMin += 30
+        if (currentMin >= 60) {
+          currentMin = 0
+          currentHour++
+        }
+      }
+    })
+    
+    setAvailableTimes(times)
+  }, [selectedDate, availability])
 
   const handleBooking = async () => {
     if (!user) {
