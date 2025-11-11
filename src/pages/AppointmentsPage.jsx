@@ -116,6 +116,33 @@ export default function AppointmentsPage() {
     return timeStr.substring(0, 5) // HH:MM
   }
 
+  const handleCancel = async (appointmentId) => {
+    if (!confirm('Tem certeza que deseja cancelar esta consulta?')) {
+      return
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const token = localStorage.getItem('vitabrasil_token')
+      
+      const response = await fetch(`${API_URL}/api/appointments/${appointmentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Erro ao cancelar consulta')
+      }
+      
+      alert('Consulta cancelada com sucesso!')
+      fetchAppointments() // Recarregar lista
+    } catch (err) {
+      alert('Erro ao cancelar consulta: ' + err.message)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Header />
@@ -252,10 +279,19 @@ export default function AppointmentsPage() {
                     )}
                   </div>
 
-                  <div className="ml-4">
+                  <div className="ml-4 flex flex-col gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(apt.status)}`}>
                       {getStatusLabel(apt.status)}
                     </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancel(apt.id)}
+                      className="text-red-600 hover:bg-red-50 border-red-300"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -303,10 +339,19 @@ export default function AppointmentsPage() {
                     </div>
                   </div>
 
-                  <div className="ml-4">
+                  <div className="ml-4 flex flex-col gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(apt.status)}`}>
                       {getStatusLabel(apt.status)}
                     </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancel(apt.id)}
+                      className="text-red-600 hover:bg-red-50 border-red-300"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
               </CardContent>
