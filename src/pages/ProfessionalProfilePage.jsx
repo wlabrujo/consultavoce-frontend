@@ -44,6 +44,9 @@ export default function ProfessionalProfilePage() {
           // Gerar próximas datas disponíveis (próximos 30 dias)
           const dates = []
           const today = new Date()
+          // Normalizar para meia-noite para evitar problemas de timezone
+          today.setHours(0, 0, 0, 0)
+          
           for (let i = 1; i <= 30; i++) {
             const date = new Date(today)
             date.setDate(today.getDate() + i)
@@ -52,7 +55,11 @@ export default function ProfessionalProfilePage() {
             // Verificar se tem disponibilidade neste dia da semana
             const hasAvailability = availData.availability.some(a => a.day_of_week === dayOfWeek)
             if (hasAvailability) {
-              dates.push(date.toLocaleDateString('pt-BR'))
+              // Formatar manualmente para evitar problemas de timezone
+              const day = String(date.getDate()).padStart(2, '0')
+              const month = String(date.getMonth() + 1).padStart(2, '0')
+              const year = date.getFullYear()
+              dates.push(`${day}/${month}/${year}`)
             }
           }
           setAvailableDates(dates)
@@ -77,7 +84,8 @@ export default function ProfessionalProfilePage() {
     
     // Converter data selecionada para dia da semana
     const [day, month, year] = selectedDate.split('/')
-    const date = new Date(year, month - 1, day)
+    // Criar data com hora zerada para evitar problemas de timezone
+    const date = new Date(year, month - 1, day, 0, 0, 0, 0)
     const dayOfWeek = date.getDay()
     
     // Buscar slots deste dia da semana

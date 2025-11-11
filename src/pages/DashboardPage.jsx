@@ -53,7 +53,9 @@ export default function DashboardPage() {
 
   const monthlyRevenue = appointments
     .filter(apt => {
-      const aptDate = new Date(apt.date)
+      // Parsear data manualmente para evitar problemas de timezone
+      const [year, month, day] = apt.date.split('-')
+      const aptDate = new Date(year, month - 1, day, 0, 0, 0, 0)
       return aptDate.getMonth() === currentMonth && 
              aptDate.getFullYear() === currentYear &&
              apt.status !== 'cancelled'
@@ -212,7 +214,11 @@ export default function DashboardPage() {
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{apt.professional?.name}</p>
-                              <p className="text-sm text-gray-600">{new Date(apt.date + 'T00:00:00Z').toLocaleDateString('pt-BR', {timeZone: 'America/Sao_Paulo'})} - {apt.time}</p>
+                              <p className="text-sm text-gray-600">{(() => {
+                                const [year, month, day] = apt.date.split('-')
+                                const date = new Date(year, month - 1, day, 0, 0, 0, 0)
+                                return date.toLocaleDateString('pt-BR')
+                              })()} - {apt.time}</p>
                             </div>
                           </div>
                           <Button size="sm" onClick={() => navigate('/appointments')}>Ver</Button>
