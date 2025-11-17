@@ -11,10 +11,15 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const [appointments, setAppointments] = useState([])
   const [loadingData, setLoadingData] = useState(true)
+  const [averageRating, setAverageRating] = useState(0)
+  const [reviewCount, setReviewCount] = useState(0)
 
   useEffect(() => {
     if (user) {
       fetchAppointments()
+      if (user.userType === 'professional') {
+        fetchReviews()
+      }
     }
   }, [user])
 
@@ -37,6 +42,22 @@ export default function DashboardPage() {
       console.error('Error fetching appointments:', error)
     } finally {
       setLoadingData(false)
+    }
+  }
+
+  const fetchReviews = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      
+      const response = await fetch(`${API_URL}/api/reviews/professional/${user.id}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setAverageRating(data.average_rating || 0)
+        setReviewCount(data.reviews?.length || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
     }
   }
 
@@ -284,8 +305,12 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Avaliação</p>
-                      <p className="text-3xl font-bold text-gray-900">-</p>
-                      <p className="text-xs text-gray-500 mt-1">Sem avaliações ainda</p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {reviewCount > 0 ? averageRating.toFixed(1) : '-'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {reviewCount > 0 ? `${reviewCount} avaliação${reviewCount > 1 ? 'ões' : ''}` : 'Sem avaliações ainda'}
+                      </p>
                     </div>
                     <Star className="h-12 w-12 text-yellow-500 opacity-20" />
                   </div>
