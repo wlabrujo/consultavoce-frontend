@@ -469,9 +469,43 @@ export default function ProfessionalProfilePage() {
                       const newDate = e.target.value
                       console.log('Date changed to:', newDate)
                       setSelectedDate(newDate)
+                      setSelectedTime('') // Reset time when date changes
+                      
+                      // Immediately update available times
+                      if (newDate && availability.length > 0) {
+                        const dateObj = new Date(newDate.split('/').reverse().join('-'))
+                        const dayOfWeek = dateObj.getDay()
+                        
+                        const dayAvailability = availability.find(a => a.day_of_week === dayOfWeek)
+                        
+                        if (dayAvailability) {
+                          const times = []
+                          const [startHour, startMin] = dayAvailability.start_time.split(':').map(Number)
+                          const [endHour, endMin] = dayAvailability.end_time.split(':').map(Number)
+                          
+                          let currentHour = startHour
+                          let currentMin = startMin
+                          
+                          while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+                            times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
+                            currentMin += 30
+                            if (currentMin >= 60) {
+                              currentMin = 0
+                              currentHour++
+                            }
+                          }
+                          
+                          console.log('Generated times immediately:', times)
+                          setAvailableTimes(times)
+                        } else {
+                          console.log('No availability for this day')
+                          setAvailableTimes([])
+                        }
+                      } else {
+                        setAvailableTimes([])
+                      }
                     }}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  >
+                    className="w-full p-2 border border-gray-300 rounded-md">                  >
                     <option value="">Selecione uma data</option>
                     {availableDates.map(date => (
                       <option key={date} value={date}>{date}</option>
