@@ -480,12 +480,17 @@ export default function ProfessionalProfilePage() {
                 </div>
 
                 {selectedDate && (
-                  <div>
+                  <div key={`times-${selectedDate}`}>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       <Clock className="h-4 w-4 inline mr-1" />
                       Horário
                     </label>
                     <div className="grid grid-cols-3 gap-2">
+                      {availableTimes.length === 0 && (
+                        <div className="col-span-3 text-center py-4 text-gray-500">
+                          Nenhum horário disponível para esta data
+                        </div>
+                      )}
                       {availableTimes.map(time => (
                         <button
                           key={time}
