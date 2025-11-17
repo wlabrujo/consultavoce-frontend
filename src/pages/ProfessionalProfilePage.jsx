@@ -133,7 +133,7 @@ export default function ProfessionalProfilePage() {
       
       while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
         times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
-        currentMin += 30
+        currentMin += (professional?.slot_duration || 30)
         if (currentMin >= 60) {
           currentMin = 0
           currentHour++
@@ -163,7 +163,7 @@ export default function ProfessionalProfilePage() {
             let currentMin = startMin
             while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
               times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
-              currentMin += 30
+              currentMin += (professional?.slot_duration || 30)
               if (currentMin >= 60) {
                 currentMin = 0
                 currentHour++

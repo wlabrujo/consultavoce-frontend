@@ -30,7 +30,7 @@ export default function ProfilePage() {
     regulatoryBody: user?.regulatoryBody || '',
     registrationNumber: user?.registrationNumber || '',
     description: user?.description || '',
-
+    slot_duration: user?.slot_duration || 30,
   })
 
   // Wait for auth to load
@@ -445,6 +445,38 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <p className="text-gray-900">{user.description || 'Não informado'}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Duração dos Horários de Agendamento
+                </label>
+                {isEditing ? (
+                  <select
+                    name="slot_duration"
+                    value={formData.slot_duration}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="15">15 minutos</option>
+                    <option value="30">30 minutos</option>
+                    <option value="45">45 minutos</option>
+                    <option value="60">1 hora</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900">
+                    {user.slot_duration === 15 && '15 minutos'}
+                    {user.slot_duration === 30 && '30 minutos'}
+                    {user.slot_duration === 45 && '45 minutos'}
+                    {user.slot_duration === 60 && '1 hora'}
+                    {!user.slot_duration && '30 minutos (padrão)'}
+                  </p>
+                )}
+                {isEditing && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Define o intervalo entre cada horário disponível na sua agenda
+                  </p>
                 )}
               </div>
             </CardContent>
