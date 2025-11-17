@@ -28,7 +28,7 @@ export default function FavoritesPage() {
       setLoading(true)
       setError('')
       
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/reviews/favorites`, {
@@ -57,7 +57,7 @@ export default function FavoritesPage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/reviews/favorites/${professionalId}`, {

@@ -20,7 +20,7 @@ export default function DashboardPage() {
 
   const fetchAppointments = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/`, {

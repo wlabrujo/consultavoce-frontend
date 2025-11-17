@@ -30,7 +30,7 @@ export default function ProfessionalProfilePage() {
         setLoading(true)
         setError(null)
         
-        const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+        const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
         
         // Buscar profissional
         const profResponse = await fetch(`${API_URL}/api/professionals/${id}`)
@@ -144,7 +144,7 @@ export default function ProfessionalProfilePage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       const token = localStorage.getItem('consultavoce_token')
       
       if (isFavorite) {
@@ -189,7 +189,7 @@ export default function ProfessionalProfilePage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       const token = localStorage.getItem('consultavoce_token')
       
       // Determinar preço baseado no tipo

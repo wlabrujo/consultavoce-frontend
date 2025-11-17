@@ -30,7 +30,7 @@ export default function SearchPage() {
         setLoading(true)
         setError(null)
         
-        const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+        const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
         
         // Construir query params
         const params = new URLSearchParams()

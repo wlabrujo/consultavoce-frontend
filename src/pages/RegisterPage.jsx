@@ -209,7 +209,7 @@ export default function RegisterPage() {
       
       console.log('Enviando cadastro...', { accountType, email: formData.email, specialties: filledSpecialties })
       
-      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       
       // Fazer requisição para a API
       const response = await fetch(`${API_URL}/api/auth/register`, {
