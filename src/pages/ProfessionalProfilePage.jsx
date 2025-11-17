@@ -513,18 +513,21 @@ export default function ProfessionalProfilePage() {
                   </select>
                 </div>
 
-                {selectedDate && (
-                  <div key={`times-${selectedDate}`}>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      <Clock className="h-4 w-4 inline mr-1" />
-                      Horário
-                    </label>
+                <div key={`times-${selectedDate}`}>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <Clock className="h-4 w-4 inline mr-1" />
+                    Horário
+                  </label>
+                  {!selectedDate ? (
+                    <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded border border-gray-200">
+                      Selecione uma data para ver os horários disponíveis
+                    </div>
+                  ) : availableTimes.length === 0 ? (
+                    <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded border border-gray-200">
+                      Nenhum horário disponível para esta data
+                    </div>
+                  ) : (
                     <div className="grid grid-cols-3 gap-2">
-                      {availableTimes.length === 0 && (
-                        <div className="col-span-3 text-center py-4 text-gray-500">
-                          Nenhum horário disponível para esta data
-                        </div>
-                      )}
                       {availableTimes.map(time => (
                         <button
                           key={time}
@@ -542,8 +545,8 @@ export default function ProfessionalProfilePage() {
                         </button>
                       ))}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {selectedDate && selectedTime && selectedType && (
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200">
