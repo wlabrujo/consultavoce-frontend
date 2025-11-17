@@ -85,14 +85,14 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem('vitabrasil_token')
+      const token = localStorage.getItem('consultavoce_token')
       if (!token) {
         alert('Sessão expirada. Faça login novamente.')
         navigate('/login')
         return
       }
 
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
       
       const response = await fetch(`${API_URL}/api/users/profile`, {
         method: 'PATCH',

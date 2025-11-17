@@ -31,8 +31,8 @@ export default function SchedulePage() {
   const fetchAvailability = async () => {
     try {
       setLoading(true)
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/availability/my`, {
         headers: {
@@ -59,8 +59,8 @@ export default function SchedulePage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/availability/`, {
         method: 'POST',
@@ -91,8 +91,8 @@ export default function SchedulePage() {
     if (!confirm('Deseja realmente remover este horário?')) return
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/availability/${id}`, {
         method: 'DELETE',

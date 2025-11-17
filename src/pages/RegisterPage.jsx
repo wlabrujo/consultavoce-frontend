@@ -209,7 +209,7 @@ export default function RegisterPage() {
       
       console.log('Enviando cadastro...', { accountType, email: formData.email, specialties: filledSpecialties })
       
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
       
       // Fazer requisição para a API
       const response = await fetch(`${API_URL}/api/auth/register`, {
@@ -253,9 +253,9 @@ export default function RegisterPage() {
 
       if (response.ok) {
         // Salvar token e fazer login automático
-        localStorage.setItem('vitabrasil_token', data.token)
+        localStorage.setItem('consultavoce_token', data.token)
         login(data.user)
-        alert('Cadastro realizado com sucesso! Bem-vindo ao VitaBrasil!')
+        alert('Cadastro realizado com sucesso! Bem-vindo ao Consulta Você!')
         navigate('/dashboard')
       } else {
         console.error('Erro no cadastro:', data)
@@ -500,7 +500,7 @@ export default function RegisterPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Heart className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </div>
             
             <Button 
@@ -519,7 +519,7 @@ export default function RegisterPage() {
         {/* Page Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Criar Conta no VitaBrasil
+            Criar Conta no Consulta Você
           </h1>
           <p className="text-xl text-gray-600">
             Junte-se à nossa comunidade de saúde

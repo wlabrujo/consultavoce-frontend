@@ -10,7 +10,7 @@ export default function TermsPage() {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <Heart className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </Link>
             
             <Link 
@@ -32,12 +32,12 @@ export default function TermsPage() {
 
           <div className="prose max-w-none">
             <p className="text-gray-700 leading-relaxed mb-6">
-              Bem-vindo à VitaBrasil! Somos uma plataforma online que conecta pacientes a profissionais de saúde qualificados, 
+              Bem-vindo à Consulta Você! Somos uma plataforma online que conecta pacientes a profissionais de saúde qualificados, 
               facilitando o agendamento de consultas e o acesso a serviços de saúde e bem-estar.
             </p>
 
             <p className="text-gray-700 leading-relaxed mb-8">
-              Estes Termos e Condições de Uso ("Termos") regem o seu acesso e uso da plataforma VitaBrasil, incluindo nosso site, 
+              Estes Termos e Condições de Uso ("Termos") regem o seu acesso e uso da plataforma Consulta Você, incluindo nosso site, 
               aplicativos móveis e todos os serviços relacionados (coletivamente, a "Plataforma"). Ao se cadastrar ou utilizar nossa 
               Plataforma, você concorda em cumprir e estar legalmente vinculado a estes Termos.
             </p>
@@ -51,9 +51,9 @@ export default function TermsPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">2. A Plataforma VitaBrasil</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">2. A Plataforma Consulta Você</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                A VitaBrasil é um marketplace que atua como intermediário, permitindo que usuários ("Pacientes") encontrem, agendem 
+                A Consulta Você é um marketplace que atua como intermediário, permitindo que usuários ("Pacientes") encontrem, agendem 
                 e paguem por consultas com diversos profissionais de saúde independentes ("Profissionais").
               </p>
               <div className="bg-green-50 border-l-4 border-green-600 p-4 mb-4">
@@ -66,9 +66,9 @@ export default function TermsPage() {
               </div>
               <div className="bg-red-50 border-l-4 border-red-600 p-4">
                 <p className="text-gray-700">
-                  <strong>A VitaBrasil NÃO é um provedor de serviços de saúde.</strong> Não empregamos os Profissionais e não nos 
+                  <strong>A Consulta Você NÃO é um provedor de serviços de saúde.</strong> Não empregamos os Profissionais e não nos 
                   responsabilizamos pela qualidade, precisão ou legalidade dos serviços prestados por eles. A relação entre Paciente 
-                  e Profissional é direta e independente da VitaBrasil.
+                  e Profissional é direta e independente da Consulta Você.
                 </p>
               </div>
             </section>
@@ -118,11 +118,11 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 text-gray-700 space-y-3">
                 <li><strong>Agendamento:</strong> Os agendamentos são feitos diretamente na Plataforma, com base na disponibilidade do Profissional.</li>
                 <li><strong>Pagamento:</strong> Os pagamentos são processados de forma segura através de nossos parceiros de pagamento. 
-                O valor da consulta é retido pela VitaBrasil e liberado ao Profissional após a confirmação da realização do serviço.</li>
-                <li><strong>Taxa de Serviço:</strong> A VitaBrasil cobra uma taxa de serviço de 10% sobre o valor de cada consulta realizada 
+                O valor da consulta é retido pela Consulta Você e liberado ao Profissional após a confirmação da realização do serviço.</li>
+                <li><strong>Taxa de Serviço:</strong> A Consulta Você cobra uma taxa de serviço de 10% sobre o valor de cada consulta realizada 
                 através da Plataforma. Esta taxa é deduzida automaticamente do valor a ser repassado ao Profissional.</li>
                 <li><strong>Cancelamentos e Reembolsos:</strong> A política de cancelamento e reembolso é definida por cada Profissional. 
-                A VitaBrasil seguirá a política estabelecida pelo Profissional para processar eventuais reembolsos.</li>
+                A Consulta Você seguirá a política estabelecida pelo Profissional para processar eventuais reembolsos.</li>
               </ul>
             </section>
 
@@ -130,7 +130,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">6. Propriedade Intelectual</h2>
               <p className="text-gray-700 leading-relaxed">
                 Todo o conteúdo da Plataforma, incluindo o design, software, textos, gráficos e logotipos, é de propriedade exclusiva 
-                da VitaBrasil ou de seus licenciadores e é protegido por leis de direitos autorais e propriedade intelectual. Você não 
+                da Consulta Você ou de seus licenciadores e é protegido por leis de direitos autorais e propriedade intelectual. Você não 
                 tem permissão para copiar, modificar ou distribuir nosso conteúdo sem autorização prévia.
               </p>
             </section>
@@ -138,7 +138,7 @@ export default function TermsPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">7. Limitação de Responsabilidade</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                A VitaBrasil não será responsável por quaisquer danos diretos, indiretos, incidentais, especiais ou consequenciais 
+                A Consulta Você não será responsável por quaisquer danos diretos, indiretos, incidentais, especiais ou consequenciais 
                 resultantes do uso ou da incapacidade de usar a Plataforma, incluindo, mas não se limitando a, erros, omissões, 
                 interrupções, ou qualquer falha de desempenho.
               </p>
@@ -153,7 +153,7 @@ export default function TermsPage() {
               <p className="text-gray-700 leading-relaxed">
                 Nossa <Link to="/politica-de-privacidade" className="text-green-600 hover:underline font-semibold">Política de Privacidade</Link>, 
                 que é parte integrante destes Termos, descreve como coletamos, usamos e protegemos suas informações pessoais. Ao usar a 
-                VitaBrasil, você concorda com as práticas descritas em nossa Política de Privacidade.
+                Consulta Você, você concorda com as práticas descritas em nossa Política de Privacidade.
               </p>
             </section>
 
@@ -170,7 +170,7 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 text-gray-700 space-y-2">
                 <li><strong>Legislação Aplicável:</strong> Estes Termos serão regidos e interpretados de acordo com as leis da República 
                 Federativa do Brasil.</li>
-                <li><strong>Foro:</strong> Fica eleito o foro da Comarca onde está sediada a VitaBrasil, Brasil, para dirimir quaisquer 
+                <li><strong>Foro:</strong> Fica eleito o foro da Comarca onde está sediada a Consulta Você, Brasil, para dirimir quaisquer 
                 controvérsias oriundas destes Termos.</li>
               </ul>
             </section>
@@ -178,8 +178,8 @@ export default function TermsPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
               <p className="text-gray-700 text-center">
                 Se você tiver alguma dúvida sobre estes Termos, entre em contato conosco através de nossa Central de Ajuda ou pelo email{' '}
-                <a href="mailto:contato@vitabrasil.com.br" className="text-green-600 hover:underline font-semibold">
-                  contato@vitabrasil.com.br
+                <a href="mailto:contato@consultavoce.com.br" className="text-green-600 hover:underline font-semibold">
+                  contato@consultavoce.com.br
                 </a>
               </p>
             </div>

@@ -21,7 +21,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Heart className="h-8 w-8 text-green-600 mr-2" />
-            <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+            <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
           </Link>
           
           <nav className="flex items-center gap-4">
@@ -95,7 +95,7 @@ export default function Header() {
                 )}
 
                 {/* Disputas - apenas para admin */}
-                {user?.email === 'admin@vitabrasil.com' && (
+                {user?.email === 'admin@consultavoce.com' && (
                   <Link to="/admin">
                     <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
                       <AlertCircle className="h-4 w-4 mr-2" />

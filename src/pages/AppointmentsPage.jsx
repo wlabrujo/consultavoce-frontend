@@ -28,8 +28,8 @@ export default function AppointmentsPage() {
       setLoading(true)
       setError('')
       
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/`, {
         headers: {
@@ -127,8 +127,8 @@ export default function AppointmentsPage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/${appointmentId}/confirm`, {
         method: 'PATCH',
@@ -155,8 +155,8 @@ export default function AppointmentsPage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/${appointmentId}/complete`, {
         method: 'PATCH',
@@ -184,8 +184,8 @@ export default function AppointmentsPage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/${appointmentId}/dispute`, {
         method: 'PATCH',
@@ -214,8 +214,8 @@ export default function AppointmentsPage() {
     }
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/appointments/${appointmentId}`, {
         method: 'DELETE',
@@ -242,8 +242,8 @@ export default function AppointmentsPage() {
 
   const submitReview = async (appointmentId, rating, comment) => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/reviews/appointment/${appointmentId}`, {
         method: 'POST',

@@ -12,7 +12,7 @@ export default function SupportPage() {
     {
       id: 1,
       sender: 'bot',
-      text: `Olá${user ? `, ${user.name}` : ''}! 👋 Sou o assistente virtual do VitaBrasil. Como posso ajudá-lo hoje?`,
+      text: `Olá${user ? `, ${user.name}` : ''}! 👋 Sou o assistente virtual do Consulta Você. Como posso ajudá-lo hoje?`,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     }
   ])
@@ -36,7 +36,7 @@ export default function SupportPage() {
     'conta': 'Para editar sua conta, acesse o Dashboard e clique em "Meu Perfil". Lá você pode atualizar seus dados pessoais e informações de contato.',
     'domiciliar': 'Consultas domiciliares estão disponíveis para profissionais que oferecem este serviço. O valor pode variar dependendo da distância. Verifique no perfil do profissional.',
     'avaliacao': 'Após a consulta, você receberá um convite para avaliar o profissional. Sua avaliação ajuda outros pacientes a escolherem o melhor atendimento.',
-    'default': 'Entendo sua dúvida! Para questões mais específicas, você pode:\n\n• Consultar nossa Central de Ajuda\n• Enviar email para suporte@vitabrasil.com\n• Ligar para (11) 3000-0000\n\nEstou aqui para ajudar com dúvidas sobre agendamento, pagamento, profissionais e uso da plataforma.'
+    'default': 'Entendo sua dúvida! Para questões mais específicas, você pode:\n\n• Consultar nossa Central de Ajuda\n• Enviar email para suporte@consultavoce.com\n• Ligar para (11) 3000-0000\n\nEstou aqui para ajudar com dúvidas sobre agendamento, pagamento, profissionais e uso da plataforma.'
   }
 
   const getBotResponse = (userMessage) => {
@@ -226,7 +226,7 @@ export default function SupportPage() {
               <CardContent className="space-y-3 text-sm">
                 <div>
                   <p className="font-semibold text-gray-900">Email</p>
-                  <p className="text-gray-600">suporte@vitabrasil.com</p>
+                  <p className="text-gray-600">suporte@consultavoce.com</p>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Telefone</p>

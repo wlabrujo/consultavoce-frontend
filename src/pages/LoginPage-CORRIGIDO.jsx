@@ -68,7 +68,7 @@ export default function LoginPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Heart className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </div>
             
             <Button 
@@ -90,7 +90,7 @@ export default function LoginPage() {
             Bem-vindo de Volta
           </h1>
           <p className="text-xl text-gray-600">
-            Entre na sua conta VitaBrasil
+            Entre na sua conta Consulta Você
           </p>
         </div>
 

@@ -16,7 +16,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (!authLoading) {
       // Verificar se é admin
-      if (!user || user.email !== 'admin@vitabrasil.com') {
+      if (!user || user.email !== 'admin@consultavoce.com') {
         navigate('/dashboard')
         return
       }
@@ -29,8 +29,8 @@ export default function AdminPage() {
       setLoading(true)
       setError('')
       
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/admin/disputes`, {
         headers: {
@@ -53,8 +53,8 @@ export default function AdminPage() {
 
   const handleResolve = async (appointmentId, action) => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
-      const token = localStorage.getItem('vitabrasil_token')
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
       
       const response = await fetch(`${API_URL}/api/admin/disputes/${appointmentId}/resolve`, {
         method: 'PATCH',

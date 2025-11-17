@@ -12,7 +12,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Heart className="h-8 w-8 text-green-600" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </div>
             <div className="flex items-center gap-3">
               <Link to="/login">
@@ -66,7 +66,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Por que escolher o VitaBrasil?
+              Por que escolher o Consulta Você?
             </h2>
             <p className="text-xl text-gray-600">
               A plataforma completa para cuidar da sua saúde
@@ -124,7 +124,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Diferenciais VitaBrasil
+              Diferenciais Consulta Você
             </h2>
             <p className="text-xl opacity-90">
               A plataforma que transforma o cuidado com a saúde
@@ -249,7 +249,7 @@ export default function LandingPage() {
             Pronto para começar?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Junte-se a milhares de pessoas que já cuidam da saúde com o VitaBrasil
+            Junte-se a milhares de pessoas que já cuidam da saúde com o Consulta Você
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
@@ -269,7 +269,7 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center mb-4">
                 <Heart className="h-8 w-8 text-green-500 mr-2" />
-                <span className="text-xl font-bold">VitaBrasil</span>
+                <span className="text-xl font-bold">Consulta Você</span>
               </div>
               <p className="text-gray-400">
                 Conectando saúde e bem-estar em todo o Brasil
@@ -301,7 +301,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 VitaBrasil. Todos os direitos reservados.</p>
+            <p>&copy; 2025 Consulta Você. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

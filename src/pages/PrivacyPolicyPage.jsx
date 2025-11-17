@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
               <Heart className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </Link>
             
             <Link 
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
 
           <div className="bg-green-50 border-l-4 border-green-600 p-4 mb-8">
             <p className="text-gray-700 leading-relaxed">
-              <strong>A sua privacidade é uma prioridade para a VitaBrasil.</strong> Esta Política de Privacidade explica como coletamos, 
+              <strong>A sua privacidade é uma prioridade para a Consulta Você.</strong> Esta Política de Privacidade explica como coletamos, 
               usamos, compartilhamos e protegemos suas informações pessoais quando você utiliza nossa plataforma. Esta política está em 
               conformidade com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD)</strong>, Lei nº 13.709/2018.
             </p>
@@ -118,7 +118,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Com Provedores de Serviço:</strong> Compartilhamos informações com terceiros que nos auxiliam a operar a Plataforma, 
                 como provedores de pagamento, serviços de hospedagem em nuvem e ferramentas de análise.</li>
                 <li><strong>Por Razões Legais:</strong> Podemos divulgar suas informações se acreditarmos que é necessário para cumprir uma lei, 
-                ordem judicial, ou para proteger os direitos, a propriedade ou a segurança da VitaBrasil.</li>
+                ordem judicial, ou para proteger os direitos, a propriedade ou a segurança da Consulta Você.</li>
               </ul>
             </section>
 
@@ -158,8 +158,8 @@ export default function PrivacyPolicyPage() {
               </div>
               <p className="text-gray-700 leading-relaxed mt-4">
                 Para exercer seus direitos, entre em contato conosco através do email{' '}
-                <a href="mailto:privacidade@vitabrasil.com.br" className="text-green-600 hover:underline font-semibold">
-                  privacidade@vitabrasil.com.br
+                <a href="mailto:privacidade@consultavoce.com.br" className="text-green-600 hover:underline font-semibold">
+                  privacidade@consultavoce.com.br
                 </a>
               </p>
             </section>
@@ -212,17 +212,17 @@ export default function PrivacyPolicyPage() {
                 Se você tiver alguma dúvida sobre esta Política de Privacidade ou sobre nossas práticas de proteção de dados:
               </p>
               <div className="bg-white rounded-lg p-4">
-                <p className="text-gray-700 text-center"><strong>VitaBrasil Marketplace de Saúde</strong></p>
+                <p className="text-gray-700 text-center"><strong>Consulta Você Marketplace de Saúde</strong></p>
                 <p className="text-gray-700 text-center">
                   Email:{' '}
-                  <a href="mailto:privacidade@vitabrasil.com.br" className="text-green-600 hover:underline font-semibold">
-                    privacidade@vitabrasil.com.br
+                  <a href="mailto:privacidade@consultavoce.com.br" className="text-green-600 hover:underline font-semibold">
+                    privacidade@consultavoce.com.br
                   </a>
                 </p>
                 <p className="text-gray-700 text-center">
                   Encarregado de Dados (DPO):{' '}
-                  <a href="mailto:dpo@vitabrasil.com.br" className="text-green-600 hover:underline font-semibold">
-                    dpo@vitabrasil.com.br
+                  <a href="mailto:dpo@consultavoce.com.br" className="text-green-600 hover:underline font-semibold">
+                    dpo@consultavoce.com.br
                   </a>
                 </p>
               </div>

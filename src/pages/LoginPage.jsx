@@ -32,7 +32,7 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const API_URL = import.meta.env.VITE_API_URL || 'https://consultavoce-backend-production.up.railway.app'
       
       // Fazer requisição para a API de login
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -50,7 +50,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Login bem-sucedido - salvar token e usuário
-        localStorage.setItem('vitabrasil_token', data.token)
+        localStorage.setItem('consultavoce_token', data.token)
         login(data.user)
         navigate('/dashboard')
       } else {
@@ -73,7 +73,7 @@ export default function LoginPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Heart className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-2xl font-bold text-gray-900">VitaBrasil</span>
+              <span className="text-2xl font-bold text-gray-900">Consulta Você</span>
             </div>
             
             <Button 
@@ -95,7 +95,7 @@ export default function LoginPage() {
             Bem-vindo de Volta
           </h1>
           <p className="text-xl text-gray-600">
-            Entre na sua conta VitaBrasil
+            Entre na sua conta Consulta Você
           </p>
         </div>
 

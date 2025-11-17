@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Verificar se há usuário salvo no localStorage
-    const savedUser = localStorage.getItem('vitabrasil_user')
+    const savedUser = localStorage.getItem('consultavoce_user')
     if (savedUser) {
       setUser(JSON.parse(savedUser))
     }
@@ -17,18 +17,18 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData)
-    localStorage.setItem('vitabrasil_user', JSON.stringify(userData))
+    localStorage.setItem('consultavoce_user', JSON.stringify(userData))
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('vitabrasil_user')
-    localStorage.removeItem('vitabrasil_token')
+    localStorage.removeItem('consultavoce_user')
+    localStorage.removeItem('consultavoce_token')
   }
 
   const updateUser = (userData) => {
     setUser(userData)
-    localStorage.setItem('vitabrasil_user', JSON.stringify(userData))
+    localStorage.setItem('consultavoce_user', JSON.stringify(userData))
   }
 
   return (
