@@ -9,14 +9,19 @@
   <!-- Background circle -->
   <circle cx="32" cy="32" r="32" fill="url(#gradient)"/>
   
-  <!-- C -->
-  <text x="12" y="44" font-family="Poppins, Arial, sans-serif" font-size="28" font-weight="700" fill="white">
-    C
-  </text>
+  <!-- Heart shape -->
+  <path d="M32 48L28 44C20 37 16 32 16 26C16 21 19 18 23 18C25.5 18 28 19 29.5 21C30 19 32.5 18 35 18C39 18 42 21 42 26C42 32 38 37 30 44L32 48Z" 
+        fill="white" 
+        stroke="white" 
+        stroke-width="1.5" 
+        stroke-linejoin="round"/>
   
-  <!-- V -->
-  <text x="32" y="44" font-family="Poppins, Arial, sans-serif" font-size="28" font-weight="700" fill="white">
-    V
-  </text>
+  <!-- Check mark inside heart -->
+  <path d="M26 28L30 32L38 24" 
+        stroke="#10B981" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none"/>
 </svg>
 
