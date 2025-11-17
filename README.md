@@ -1,6 +1,6 @@
-# VitaBrasil Frontend
+# Consulta Você Frontend
 
-Frontend da plataforma VitaBrasil - Sistema de agendamento de consultas médicas.
+Frontend da plataforma Consulta Você - Sistema de agendamento de consultas médicas.
 
 ## Tecnologias
 
