@@ -100,8 +100,16 @@ export default function ProfessionalProfilePage() {
   
   // Atualizar horários disponíveis quando data for selecionada
   useEffect(() => {
-    if (!selectedDate || availability.length === 0) {
+    console.log('useEffect triggered - selectedDate:', selectedDate, 'availability:', availability.length)
+    
+    if (!selectedDate) {
+      console.log('No date selected, clearing times')
       setAvailableTimes([])
+      return
+    }
+    
+    if (availability.length === 0) {
+      console.log('No availability data yet')
       return
     }
     
@@ -133,6 +141,7 @@ export default function ProfessionalProfilePage() {
       }
     })
     
+    console.log('Generated times for', selectedDate, ':', times)
     setAvailableTimes(times)
   }, [selectedDate, availability])
 
@@ -177,6 +186,9 @@ export default function ProfessionalProfilePage() {
   }
 
   const handleBooking = async () => {
+    console.log('handleBooking called')
+    console.log('States:', { selectedDate, selectedTime, selectedType, user })
+    
     if (!user) {
       alert('Você precisa estar logado para agendar uma consulta!')
       navigate('/login')
@@ -185,8 +197,11 @@ export default function ProfessionalProfilePage() {
 
     if (!selectedDate || !selectedTime || !selectedType) {
       alert('Por favor, selecione data, horário e tipo de atendimento')
+      console.log('Missing required fields')
       return
     }
+    
+    console.log('All validations passed, proceeding with booking...')
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
@@ -429,7 +444,11 @@ export default function ProfessionalProfilePage() {
                   </label>
                   <select
                     value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
+                    onChange={(e) => {
+                      const newType = e.target.value
+                      console.log('Type changed to:', newType)
+                      setSelectedType(newType)
+                    }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   >
                     <option value="">Selecione</option>
@@ -446,7 +465,11 @@ export default function ProfessionalProfilePage() {
                   </label>
                   <select
                     value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
+                    onChange={(e) => {
+                      const newDate = e.target.value
+                      console.log('Date changed to:', newDate)
+                      setSelectedDate(newDate)
+                    }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   >
                     <option value="">Selecione uma data</option>
@@ -466,7 +489,10 @@ export default function ProfessionalProfilePage() {
                       {availableTimes.map(time => (
                         <button
                           key={time}
-                          onClick={() => setSelectedTime(time)}
+                          onClick={() => {
+                            console.log('Time selected:', time)
+                            setSelectedTime(time)
+                          }}
                           className={`p-2 text-sm rounded border ${
                             selectedTime === time
                               ? 'bg-green-600 text-white border-green-600'
