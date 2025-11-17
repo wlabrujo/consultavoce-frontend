@@ -145,6 +145,39 @@ export default function ProfessionalProfilePage() {
     setAvailableTimes(times)
   }, [selectedDate, availability])
 
+  // Forçar atualização de horários após mudança de data (fallback)
+  useEffect(() => {
+    if (selectedDate && availability.length > 0) {
+      const timer = setTimeout(() => {
+        const [day, month, year] = selectedDate.split('/')
+        const date = new Date(year, month - 1, day, 0, 0, 0, 0)
+        const dayOfWeek = date.getDay()
+        const daySlots = availability.filter(a => a.day_of_week === dayOfWeek)
+        
+        if (daySlots.length > 0) {
+          const times = []
+          daySlots.forEach(slot => {
+            const [startHour, startMin] = slot.start_time.split(':').map(Number)
+            const [endHour, endMin] = slot.end_time.split(':').map(Number)
+            let currentHour = startHour
+            let currentMin = startMin
+            while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+              times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
+              currentMin += 30
+              if (currentMin >= 60) {
+                currentMin = 0
+                currentHour++
+              }
+            }
+          })
+          console.log('Fallback: forcing times update', times)
+          setAvailableTimes(times)
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedDate, availability])
+
   const handleToggleFavorite = async () => {
     if (!user) {
       alert('Faça login para favoritar profissionais')
