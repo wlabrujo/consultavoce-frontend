@@ -134,7 +134,7 @@ export default function ProfilePage() {
         reader.onerror = reject
         reader.readAsDataURL(photoFile)
       })
-        
+      
       const response = await fetch(`${API_URL}/api/users/profile/photo`, {
         method: 'POST',
         headers: {
