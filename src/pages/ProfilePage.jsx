@@ -115,8 +115,9 @@ export default function ProfilePage() {
   const handleUploadPhoto = async () => {
     if (!photoFile) return
     
+    setUploadingPhoto(true)
+    
     try {
-      setUploadingPhoto(true)
       const token = localStorage.getItem('consultavoce_token')
       if (!token) {
         alert('Sessão expirada. Faça login novamente.')
@@ -127,35 +128,35 @@ export default function ProfilePage() {
       const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
       
       // Converter para base64
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        const base64Image = reader.result
+      const base64Image = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(photoFile)
+      })
         
-        const response = await fetch(`${API_URL}/api/users/profile/photo`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ image: base64Image })
-        })
+      const response = await fetch(`${API_URL}/api/users/profile/photo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ image: base64Image })
+      })
 
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || 'Erro ao fazer upload')
-        }
-
-        const data = await response.json()
-        
-        // Atualizar contexto
-        updateUser(data.user)
-        setPhotoPreview(API_URL + data.photo_url)
-        setPhotoFile(null)
-        
-        alert('✅ Foto atualizada com sucesso!')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao fazer upload')
       }
+
+      const data = await response.json()
       
-      reader.readAsDataURL(photoFile)
+      // Atualizar contexto
+      updateUser(data.user)
+      setPhotoPreview(API_URL + data.photo_url)
+      setPhotoFile(null)
+      
+      alert('✅ Foto atualizada com sucesso!')
     } catch (error) {
       console.error('Error uploading photo:', error)
       alert(`Erro ao fazer upload: ${error.message}`)
