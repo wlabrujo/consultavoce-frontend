@@ -177,6 +177,34 @@ export default function AppointmentsPage() {
     }
   }
 
+  const handleCancel = async (appointmentId) => {
+    if (!confirm('⚠️ Tem certeza que deseja cancelar esta consulta?')) {
+      return
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      const token = localStorage.getItem('consultavoce_token')
+      
+      const response = await fetch(`${API_URL}/api/appointments/${appointmentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao cancelar consulta')
+      }
+      
+      alert('✅ Consulta cancelada com sucesso!')
+      fetchAppointments()
+    } catch (err) {
+      alert(`Erro: ${err.message}`)
+    }
+  }
+
   const handleDispute = async (appointmentId) => {
     const reason = prompt('Por favor, descreva o motivo da contestação:')
     if (!reason) {
