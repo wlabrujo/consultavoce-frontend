@@ -12,6 +12,9 @@ export default function ProfilePage() {
   const { user, updateUser, loading } = useAuth()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(user?.photo_url || null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [formData, setFormData] = useState({
     name: user?.name || '',
     preferred_name: user?.preferred_name || '',
@@ -83,7 +86,85 @@ export default function ProfilePage() {
     }
   }
 
-  const handleSave = async () => {
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Validar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Imagem muito grande. Máximo 5MB')
+        return
+      }
+      
+      // Validar tipo
+      if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+        alert('Formato não suportado. Use JPG, PNG ou WEBP')
+        return
+      }
+      
+      setPhotoFile(file)
+      
+      // Criar preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleUploadPhoto = async () => {
+    if (!photoFile) return
+    
+    try {
+      setUploadingPhoto(true)
+      const token = localStorage.getItem('consultavoce_token')
+      if (!token) {
+        alert('Sessão expirada. Faça login novamente.')
+        navigate('/login')
+        return
+      }
+
+      const API_URL = import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'
+      
+      // Converter para base64
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        const base64Image = reader.result
+        
+        const response = await fetch(`${API_URL}/api/users/profile/photo`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ image: base64Image })
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Erro ao fazer upload')
+        }
+
+        const data = await response.json()
+        
+        // Atualizar contexto
+        updateUser(data.user)
+        setPhotoPreview(API_URL + data.photo_url)
+        setPhotoFile(null)
+        
+        alert('✅ Foto atualizada com sucesso!')
+      }
+      
+      reader.readAsDataURL(photoFile)
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      alert(`Erro ao fazer upload: ${error.message}`)
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const handleSave = async () {
     try {
       const token = localStorage.getItem('consultavoce_token')
       if (!token) {
@@ -152,6 +233,57 @@ export default function ProfilePage() {
             )}
           </Button>
         </div>
+
+        {/* Profile Photo - Only for Professionals */}
+        {!isPatient && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Foto de Perfil</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                {/* Preview */}
+                <div className="flex-shrink-0">
+                  {photoPreview ? (
+                    <img 
+                      src={photoPreview.startsWith('data:') ? photoPreview : `${import.meta.env.VITE_API_URL || 'https://vitabrasil-backend-production.up.railway.app'}${photoPreview}`}
+                      alt="Foto de perfil"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-green-200"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="h-16 w-16 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Upload */}
+                {isEditing && (
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handlePhotoChange}
+                      className="mb-2"
+                    />
+                    {photoFile && (
+                      <Button
+                        onClick={handleUploadPhoto}
+                        disabled={uploadingPhoto}
+                        className="bg-gradient-to-r from-green-600 to-blue-600"
+                      >
+                        {uploadingPhoto ? 'Enviando...' : 'Salvar Foto'}
+                      </Button>
+                    )}
+                    <p className="text-sm text-gray-500 mt-2">
+                      Formatos aceitos: JPG, PNG, WEBP (máximo 5MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Profile Info */}
         <Card>
