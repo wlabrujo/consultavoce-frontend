@@ -509,7 +509,7 @@ export default function ProfessionalProfilePage() {
                         const [day, month, year] = newDate.split('/')
                         const apiDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
                         
-                        fetch(`https://vitabrasil-backend-production.up.railway.app/api/professionals/${id}/available-slots?date=${apiDate}&appointment_type=${selectedType}`)
+                        fetch(`https://vitabrasil-backend-production.up.railway.app/api/slots/${id}/available-slots?date=${apiDate}&appointment_type=${selectedType}`)
                           .then(res => res.json())
                           .then(data => {
                             console.log('Slots recebidos da API:', data.slots)
