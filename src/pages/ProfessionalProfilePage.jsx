@@ -504,48 +504,22 @@ export default function ProfessionalProfilePage() {
                       setSelectedDate(newDate)
                       setSelectedTime('') // Reset time when date changes
                       
-                      // Immediately update available times
-                      if (newDate && availability.length > 0) {
-                        console.log('=== GENERATING TIMES ===')
-                        console.log('Selected date:', newDate)
-                        console.log('Availability data:', availability)
-                        
+                      // Buscar slots disponíveis via API
+                      if (newDate && selectedType) {
                         const [day, month, year] = newDate.split('/')
-                        const dateObj = new Date(year, month - 1, day, 0, 0, 0, 0)
-                        const dayOfWeek = dateObj.getDay()
+                        const apiDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
                         
-                        console.log('Day of week:', dayOfWeek)
-                        
-                        const daySlots = availability.filter(a => a.day_of_week === dayOfWeek)
-                        console.log('Day slots found:', daySlots)
-                        
-                        if (daySlots.length > 0) {
-                          const times = []
-                          daySlots.forEach(slot => {
-                            const [startHour, startMin] = slot.start_time.split(':').map(Number)
-                            const [endHour, endMin] = slot.end_time.split(':').map(Number)
-                            
-                            let currentHour = startHour
-                            let currentMin = startMin
-                            
-                            while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
-                              times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
-                              currentMin += (professional?.slot_duration || 30)
-                              if (currentMin >= 60) {
-                                currentMin = 0
-                                currentHour++
-                              }
-                            }
+                        fetch(`https://vitabrasil-backend-production.up.railway.app/api/professionals/${id}/available-slots?date=${apiDate}&appointment_type=${selectedType}`)
+                          .then(res => res.json())
+                          .then(data => {
+                            console.log('Slots recebidos da API:', data.slots)
+                            setAvailableTimes(data.slots || [])
                           })
-                          
-                          console.log('Generated times:', times)
-                          setAvailableTimes(times)
-                        } else {
-                          console.log('No availability for this day')
-                          setAvailableTimes([])
-                        }
+                          .catch(err => {
+                            console.error('Erro ao buscar slots:', err)
+                            setAvailableTimes([])
+                          })
                       } else {
-                        console.log('No date or no availability data')
                         setAvailableTimes([])
                       }
                     }}
