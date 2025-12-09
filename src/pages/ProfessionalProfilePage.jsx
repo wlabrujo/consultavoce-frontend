@@ -504,21 +504,39 @@ export default function ProfessionalProfilePage() {
                       setSelectedDate(newDate)
                       setSelectedTime('') // Reset time when date changes
                       
-                      // Buscar slots disponíveis via API
-                      if (newDate && selectedType) {
+                      // Gerar slots localmente (fallback)
+                      if (newDate && availability.length > 0) {
                         const [day, month, year] = newDate.split('/')
-                        const apiDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+                        const dateObj = new Date(year, month - 1, day)
+                        const dayOfWeek = dateObj.getDay()
                         
-                        fetch(`https://vitabrasil-backend-production.up.railway.app/api/slots/${id}/available-slots?date=${apiDate}&appointment_type=${selectedType}`)
-                          .then(res => res.json())
-                          .then(data => {
-                            console.log('Slots recebidos da API:', data.slots)
-                            setAvailableTimes(data.slots || [])
+                        const daySlots = availability.filter(a => a.day_of_week === dayOfWeek && a.is_active)
+                        
+                        if (daySlots.length > 0) {
+                          const times = []
+                          const slotDuration = professional?.slot_duration || 30
+                          
+                          daySlots.forEach(slot => {
+                            const [startHour, startMin] = slot.start_time.split(':').map(Number)
+                            const [endHour, endMin] = slot.end_time.split(':').map(Number)
+                            
+                            let currentHour = startHour
+                            let currentMin = startMin
+                            
+                            while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+                              times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
+                              currentMin += slotDuration
+                              if (currentMin >= 60) {
+                                currentMin -= 60
+                                currentHour++
+                              }
+                            }
                           })
-                          .catch(err => {
-                            console.error('Erro ao buscar slots:', err)
-                            setAvailableTimes([])
-                          })
+                          
+                          setAvailableTimes(times.sort())
+                        } else {
+                          setAvailableTimes([])
+                        }
                       } else {
                         setAvailableTimes([])
                       }
