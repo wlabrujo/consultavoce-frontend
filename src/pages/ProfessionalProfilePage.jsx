@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -100,83 +101,35 @@ export default function ProfessionalProfilePage() {
   
   // Atualizar horários disponíveis quando data for selecionada
   useEffect(() => {
-    console.log('useEffect triggered - selectedDate:', selectedDate, 'availability:', availability.length)
-    
-    if (!selectedDate) {
-      console.log('No date selected, clearing times')
-      setAvailableTimes([])
-      return
-    }
-    
-    if (availability.length === 0) {
-      console.log('No availability data yet')
-      return
-    }
-    
-    // Converter data selecionada para dia da semana
-    const [day, month, year] = selectedDate.split('/')
-    // Criar data com hora zerada para evitar problemas de timezone
-    const date = new Date(year, month - 1, day, 0, 0, 0, 0)
-    const dayOfWeek = date.getDay()
-    
-    // Buscar slots deste dia da semana
-    const daySlots = availability.filter(a => a.day_of_week === dayOfWeek)
-    
-    // Gerar horários de 30 em 30 minutos
-    const times = []
-    daySlots.forEach(slot => {
-      const [startHour, startMin] = slot.start_time.split(':').map(Number)
-      const [endHour, endMin] = slot.end_time.split(':').map(Number)
-      
-      let currentHour = startHour
-      let currentMin = startMin
-      
-      while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
-        times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
-        currentMin += (professional?.slot_duration || 30)
-        if (currentMin >= 60) {
-          currentMin = 0
-          currentHour++
-        }
-      }
-    })
-    
-    console.log('Generated times for', selectedDate, ':', times)
-    setAvailableTimes(times)
-  }, [selectedDate, availability])
-
-  // Forçar atualização de horários após mudança de data (fallback)
-  useEffect(() => {
     if (selectedDate && availability.length > 0) {
-      const timer = setTimeout(() => {
-        const [day, month, year] = selectedDate.split('/')
-        const date = new Date(year, month - 1, day, 0, 0, 0, 0)
-        const dayOfWeek = date.getDay()
-        const daySlots = availability.filter(a => a.day_of_week === dayOfWeek)
-        
-        if (daySlots.length > 0) {
-          const times = []
-          daySlots.forEach(slot => {
-            const [startHour, startMin] = slot.start_time.split(':').map(Number)
-            const [endHour, endMin] = slot.end_time.split(':').map(Number)
-            let currentHour = startHour
-            let currentMin = startMin
-            while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
-              times.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`)
-              currentMin += (professional?.slot_duration || 30)
-              if (currentMin >= 60) {
-                currentMin = 0
-                currentHour++
-              }
-            }
-          })
-          console.log('Fallback: forcing times update', times)
-          setAvailableTimes(times)
-        }
-      }, 100)
-      return () => clearTimeout(timer)
+      const [day, month, year] = selectedDate.split('/')
+      const date = new Date(year, month - 1, day)
+      const dayOfWeek = date.getDay()
+      const dayAvailability = availability.filter(a => a.day_of_week === dayOfWeek)
+
+      if (dayAvailability.length > 0) {
+        const allSlots = []
+        const slotDuration = professional?.slot_duration || 30
+
+        dayAvailability.forEach(avail => {
+          const startTime = new Date(`${year}-${month}-${day}T${avail.start_time}`)
+          const endTime = new Date(`${year}-${month}-${day}T${avail.end_time}`)
+          let currentSlot = startTime
+
+          while (currentSlot < endTime) {
+            allSlots.push(currentSlot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
+            currentSlot.setMinutes(currentSlot.getMinutes() + slotDuration)
+          }
+        })
+
+        setAvailableTimes(allSlots)
+      } else {
+        setAvailableTimes([])
+      }
+    } else {
+      setAvailableTimes([])
     }
-  }, [selectedDate, availability])
+  }, [selectedDate, availability, professional])
 
   const handleToggleFavorite = async () => {
     if (!user) {
@@ -406,124 +359,68 @@ export default function ProfessionalProfilePage() {
                       </p>
                     </>
                   )}
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Reviews */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Avaliações dos Pacientes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {reviews.length > 0 ? (
-                  <div className="space-y-6">
-                    {reviews.map((review) => (
-                      <div key={review.id} className="border-b border-gray-200 pb-4 last:border-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center">
-                              <span className="text-white font-semibold">
-                                {review.patient_name.charAt(0)}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-semibold text-gray-900">{review.patient_name}</p>
+                  {reviews.length > 0 && (
+                    <>
+                      <h2 className="text-xl font-bold text-gray-900 mb-3">Avaliações</h2>
+                      <div className="space-y-4">
+                        {reviews.map(review => (
+                          <div key={review.id} className="border-b pb-4">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-semibold">{review.patient_name}</span>
                               <div className="flex items-center gap-1">
                                 {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < review.rating
-                                        ? 'fill-yellow-400 text-yellow-400'
-                                        : 'text-gray-300'
-                                    }`}
+                                  <Star 
+                                    key={i} 
+                                    className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                                   />
                                 ))}
                               </div>
                             </div>
+                            <p className="text-gray-600 text-sm mb-2">
+                              {new Date(review.created_at).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-700">{review.comment}</p>
                           </div>
-                          <span className="text-sm text-gray-500">
-                            {new Date(review.created_at).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                        {review.comment && (
-                          <p className="text-gray-700 ml-12">{review.comment}</p>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Star className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-600">Este profissional ainda não possui avaliações</p>
-                    <p className="text-sm text-gray-500 mt-2">Seja o primeiro a avaliar!</p>
-                  </div>
-                )}
+                    </>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Booking Card */}
-          <div>
-            <Card className="sticky top-20">
+          <div className="md:col-span-1">
+            <Card>
               <CardHeader>
-                <CardTitle>Agendar Consulta</CardTitle>
+                <CardTitle className="text-2xl">Agende sua Consulta</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Tipo de Atendimento
-                  </label>
-                  <select
+                  <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Tipo de Atendimento</label>
+                  <select 
+                    id="type" 
                     value={selectedType}
-                    onChange={(e) => {
-                      const newType = e.target.value
-                      console.log('Type changed to:', newType)
-                      setSelectedType(newType)
-                    }}
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    onChange={(e) => setSelectedType(e.target.value)}
+                    className="w-full p-2 border rounded-md"
                   >
-                    <option value="">Selecione</option>
-                    {professional.pricing?.online_enabled && <option value="Online">Online - R$ {professional.pricing.online?.toFixed(2)}</option>}
-                    {professional.pricing?.in_person_enabled && <option value="Presencial">Presencial - R$ {professional.pricing.in_person?.toFixed(2)}</option>}
-                    {professional.pricing?.home_enabled && <option value="Domiciliar">Domiciliar - R$ {professional.pricing.home?.toFixed(2)}</option>}
+                    <option value="">Selecione o tipo</option>
+                    {professional.pricing?.online && <option value="Online">Online - R$ {professional.pricing.online.toFixed(2)}</option>}
+                    {professional.pricing?.in_person && <option value="Presencial">Presencial - R$ {professional.pricing.in_person.toFixed(2)}</option>}
+                    {professional.pricing?.home && <option value="Domiciliar">Domiciliar - R$ {professional.pricing.home.toFixed(2)}</option>}
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    <Calendar className="h-4 w-4 inline mr-1" />
-                    Data
-                  </label>
-                  <select
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                  <select 
+                    id="date" 
                     value={selectedDate}
-                    onChange={(e) => {
-                      const newDate = e.target.value
-                      console.log('Date changed to:', newDate)
-                      setSelectedDate(newDate)
-                      setSelectedTime('') // Reset time when date changes
-                      
-                      // Buscar slots disponíveis via API
-                      if (newDate && selectedType) {
-                        const [day, month, year] = newDate.split('/')
-                        const apiDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-                        
-                        fetch(`https://vitabrasil-backend-production.up.railway.app/api/slots/${id}/available-slots?date=${apiDate}&appointment_type=${selectedType}`)
-                          .then(res => res.json())
-                          .then(data => {
-                            console.log('Slots recebidos da API:', data.slots)
-                            setAvailableTimes(data.slots || [])
-                          })
-                          .catch(err => {
-                            console.error('Erro ao buscar slots:', err)
-                            setAvailableTimes([])
-                          })
-                      } else {
-                        setAvailableTimes([])
-                      }
-                    }}
-                    className="w-full p-2 border border-gray-300 rounded-md">                  >
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  >
                     <option value="">Selecione uma data</option>
                     {availableDates.map(date => (
                       <option key={date} value={date}>{date}</option>
@@ -531,64 +428,35 @@ export default function ProfessionalProfilePage() {
                   </select>
                 </div>
 
-                <div key={`times-${selectedDate}`}>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    <Clock className="h-4 w-4 inline mr-1" />
-                    Horário
-                  </label>
-                  {!selectedDate ? (
-                    <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded border border-gray-200">
-                      Selecione uma data para ver os horários disponíveis
-                    </div>
-                  ) : availableTimes.length === 0 ? (
-                    <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded border border-gray-200">
-                      Nenhum horário disponível para esta data
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                  {availableTimes.length > 0 ? (
+                    <select 
+                      id="time" 
+                      value={selectedTime}
+                      onChange={(e) => setSelectedTime(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                    >
+                      <option value="">Selecione um horário</option>
                       {availableTimes.map(time => (
-                        <button
-                          key={time}
-                          onClick={() => {
-                            console.log('Time selected:', time)
-                            setSelectedTime(time)
-                          }}
-                          className={`p-2 text-sm rounded border ${
-                            selectedTime === time
-                              ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
-                          }`}
-                        >
-                          {time}
-                        </button>
+                        <option key={time} value={time}>{time}</option>
                       ))}
+                    </select>
+                  ) : (
+                    <div className="text-sm text-gray-500 p-2 bg-gray-100 rounded-md">
+                      {selectedDate ? 'Nenhum horário disponível para esta data' : 'Selecione uma data para ver os horários'}
                     </div>
                   )}
                 </div>
 
-                {selectedDate && selectedTime && selectedType && (
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <h3 className="font-semibold text-green-900 mb-2">Resumo</h3>
-                    <div className="space-y-1 text-sm text-green-800">
-                      <p><strong>Data:</strong> {selectedDate}</p>
-                      <p><strong>Horário:</strong> {selectedTime}</p>
-                      <p><strong>Tipo:</strong> {selectedType}</p>
-                    </div>
-                  </div>
-                )}
-
                 <Button 
-                  className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                   onClick={handleBooking}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                   disabled={!selectedDate || !selectedTime || !selectedType}
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
                   Confirmar Agendamento
                 </Button>
-
-                <p className="text-xs text-gray-500 text-center">
-                  Ao confirmar, você concorda com os termos de agendamento
-                </p>
               </CardContent>
             </Card>
           </div>
@@ -597,4 +465,3 @@ export default function ProfessionalProfilePage() {
     </div>
   )
 }
-
